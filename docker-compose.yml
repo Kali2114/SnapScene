@@ -16,7 +16,7 @@ services:
              gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application"
     environment:
       - DB_HOST=db
-      - DB_NAME=db_stayreserve
+      - DB_NAME=snapscene
       - DB_USER=kamileg
       - DB_PASS=kali2114
     depends_on:
@@ -27,7 +27,7 @@ services:
     volumes:
       - dev-db-data:/var/lib/postgres/data
     environment:
-      - POSTGRES_DB=db_stayreserve
+      - POSTGRES_DB=snapscene
       - POSTGRES_USER=kamileg
       - POSTGRES_PASSWORD=kali2114
 

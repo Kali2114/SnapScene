@@ -1,0 +1,9 @@
+migrations/
+__pycache__/
+manage.py
+settings.py
+env/
+venv/
+.env/
+README.md
+.venv/
