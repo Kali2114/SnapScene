@@ -1,0 +1,18 @@
+.message-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 400px;
+    z-index: 1000;
+}
+
+.message {
+    background-color: #dff0d8;
+    color: #3c763d;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 15px;
+}

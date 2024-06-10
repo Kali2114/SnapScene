@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Snap Scene{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body>
+    {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+                <div class="message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(function() {
+                var messages = document.querySelectorAll('.message');
+                messages.forEach(function(message) {
+                    message.classList.add('fade-out');
+                });
+            }, 2000);
+
+            setTimeout(function() {
+                var messageContainer = document.querySelector('.message-container');
+                if (messageContainer) {
+                    messageContainer.style.display = 'none';
+                }
+            }, 3500);
+        </script>
+    {% endif %}
+
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="w-1/3 text-left">
+                {% if user.is_authenticated %}
+                    <form id="logout-form" method="POST" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-white mr-4">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-white mr-4">Login</a>
+                {% endif %}
+            </div>
+            <div class="w-1/3 text-center">
+                <a href="{% url 'index' %}" class="text-white text-lg font-semibold">Snap Scene</a>
+            </div>
+            <div class="w-1/3">
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
