@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.core import mail
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from user import forms
 
@@ -47,6 +48,11 @@ class PrivateUserViewsTests(TestCase):
             email='Test@example.com',
             password='Test123',
         )
+        self.photo = SimpleUploadedFile(
+            name='test_avatar.jpg',
+            content=b'\x00\x00\x00\x00',
+            content_type='image/jpeg'
+        )
         self.client.login(username='Test Name', password='Test123')
         self.index_url = reverse('index')
         self.logout_url = reverse('logout')
@@ -55,6 +61,7 @@ class PrivateUserViewsTests(TestCase):
         self.password_reset_url = reverse('password_reset')
         self.password_reset_done_url = reverse('password_reset_done')
         self.registration_url = reverse('register')
+        self.profile_url = reverse('profile')
 
     def test_login_view_post_valid(self):
         """Test POST request to the login view with valid data."""
@@ -173,3 +180,65 @@ class PrivateUserViewsTests(TestCase):
         self.assertTemplateUsed(res, 'registration/register.html')
         exists_user = User.objects.filter(email=payload['email']).exists()
         self.assertFalse(exists_user)
+
+    def test_get_profile_update_view(self):
+        """Test GET request to the profile update view."""
+        res = self.client.get(self.profile_url)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'registration/profile_update.html')
+        self.assertIsInstance(res.context['form'], forms.ProfileUpdateForm)
+
+    def test_change_password_success(self):
+        """Test that change password is success with valid credentials."""
+        payload = {
+            'old_password': 'Test123',
+            'password1': 'NewPassword',
+            'password2': 'NewPassword',
+        }
+        res = self.client.post(self.password_change_url, payload)
+
+        self.assertEqual(res.status_code, 302)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(payload['password1']))
+
+    def test_change_password_failed(self):
+        """Test that change password fails with invalid credentials."""
+        payload = {
+            'old_password': 'errorpass',
+            'password1': 'newpass',
+            'password2': 'newpass',
+        }
+        res = self.client.post(self.password_change_url, payload)
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed('registration/password_change')
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.check_password(payload['old_password']))
+
+    def test_update_profile_successful(self):
+        """Test POST request for update profile with valid data successful."""
+        payload = {
+            'username': 'Update_username',
+            'email': 'updated@email.com',
+            'photo': self.photo,
+        }
+        res = self.client.post(self.profile_url, payload, format='multipart')
+
+        self.assertEqual(res.status_code, 302)
+        self.assertRedirects(res, 'index.html')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, payload['username'])
+        self.assertEqual(self.user.email, payload['email'])
+        self.assertTrue(self.user.photo)
+        self.assertTrue(res.context['form'].is_valid())
+
+    def test_post_profile_update_invalid_data(self):
+        """Test POST request to the profile update view with invalid data."""
+        payload = {
+            'username': '',
+            'email': '',
+        }
+        res = self.client.post(self.profile_url, payload)
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'registration/profile_update.html')
+        self.assertFalse(res.context['form'].is_vali())
