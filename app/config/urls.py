@@ -27,5 +27,4 @@ urlpatterns = [
     path('', IndexView.as_view(), name='index'),
     path('users/', include('user.urls')),
 ]
-
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
