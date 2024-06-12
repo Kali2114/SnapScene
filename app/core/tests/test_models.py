@@ -34,3 +34,22 @@ class ModelTest(TestCase):
 
         self.assertEqual(profile.user, user)
 
+    def create_post(self):
+        """Test create post successful."""
+        image = SimpleUploadedFile(
+            name='test_avatar.jpg',
+            content=b'\x00\x00\x00\x00',
+            content_type='image/jpeg'
+        )
+        user = create_user()
+        post = models.Post.objects.create(
+            user=user,
+            image=image,
+            caption='Test Caption',
+            title='Test title',
+        )
+
+        self.assertEqual(str(post), post.title)
+        self.assertEqual(post.slug, 'test-title')
+        self.assertTrue(post.created)
+
