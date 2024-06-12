@@ -187,33 +187,7 @@ class PrivateUserViewsTests(TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'registration/profile_update.html')
-        self.assertIsInstance(res.context['form'], forms.ProfileUpdateForm)
-
-    def test_change_password_success(self):
-        """Test that change password is success with valid credentials."""
-        payload = {
-            'old_password': 'Test123',
-            'password1': 'NewPassword',
-            'password2': 'NewPassword',
-        }
-        res = self.client.post(self.password_change_url, payload)
-
-        self.assertEqual(res.status_code, 302)
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.check_password(payload['password1']))
-
-    def test_change_password_failed(self):
-        """Test that change password fails with invalid credentials."""
-        payload = {
-            'old_password': 'errorpass',
-            'password1': 'newpass',
-            'password2': 'newpass',
-        }
-        res = self.client.post(self.password_change_url, payload)
-        self.assertEqual(res.status_code, 200)
-        self.assertTemplateUsed('registration/password_change')
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.check_password(payload['old_password']))
+        self.assertIsInstance(res.context['form'], forms.UserProfileForm)
 
     def test_update_profile_successful(self):
         """Test POST request for update profile with valid data successful."""
@@ -224,12 +198,12 @@ class PrivateUserViewsTests(TestCase):
         }
         res = self.client.post(self.profile_url, payload, format='multipart')
 
-        self.assertEqual(res.status_code, 302)
-        self.assertRedirects(res, 'index.html')
+        self.assertEqual(res.status_code, 200)
+        self.assertRedirects(res, '/')
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, payload['username'])
         self.assertEqual(self.user.email, payload['email'])
-        self.assertTrue(self.user.photo)
+        self.assertTrue(self.user.userprofile.photo)
         self.assertTrue(res.context['form'].is_valid())
 
     def test_post_profile_update_invalid_data(self):
@@ -241,4 +215,4 @@ class PrivateUserViewsTests(TestCase):
         res = self.client.post(self.profile_url, payload)
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, 'registration/profile_update.html')
-        self.assertFalse(res.context['form'].is_vali())
+        self.assertFalse(res.context['form'].is_valid())

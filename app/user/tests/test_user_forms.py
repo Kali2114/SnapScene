@@ -1,11 +1,24 @@
 """
 Test for user forms.
 """
+import io
 from django.test import TestCase
 
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from PIL import Image
 
 from user import forms
+
+
+def get_temporary_image():
+    """Create and return a temporary image file."""
+    image = Image.new('RGB', (100, 100))
+    tmp_file = io.BytesIO()
+    image.save(tmp_file, 'jpeg')
+    tmp_file.seek(0)
+    return SimpleUploadedFile('test_image.jpg', tmp_file.read(), content_type='image/jpeg')
 
 
 class TestLoginForm(TestCase):
@@ -76,3 +89,57 @@ class UserRegistrationFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('This email is already in use.', form.errors.get('email'))
+
+
+class TestUserProfileUpdate(TestCase):
+    """Test case for the profile update form."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='test name',
+            email='test@example.com',
+            password='test123',
+        )
+        # Create a valid image file
+        self.photo = get_temporary_image()
+        self.valid_data = {
+            'username': 'updateduser',
+            'email': 'updated@example.com',
+        }
+        self.invalid_data = {
+            'username': '',
+            'email': '',
+        }
+
+    def test_form_valid_data(self):
+        """Test that the form is valid with correct data."""
+        form = forms.UserProfileForm(data=self.valid_data, files={'photo': self.photo}, instance=self.user)
+        user = form.save()
+        user.refresh_from_db()
+
+        self.assertTrue(form.is_valid())
+        self.assertEqual(user.username, self.valid_data['username'])
+        self.assertEqual(user.email, self.valid_data['email'])
+        self.assertTrue(user.userprofile.photo)
+
+    def test_form_invalid_data(self):
+        """Test that the form is invalid with incorrect data."""
+        form = forms.UserProfileForm(data=self.invalid_data, instance=self.user)
+
+        self.assertFalse(form.is_valid())
+
+        user = form.save()
+        user.refresh_from_db()
+
+        if not form.is_valid():
+            print("Form errors:", form.errors)
+
+        self.assertTrue(form.is_valid())
+        self.assertEqual(user.username, self.valid_data['username'])
+        self.assertEqual(user.email, self.valid_data['email'])
+        self.assertTrue(user.userprofile.photo)
+
+    def test_form_invalid_data(self):
+        """Test that the form is invalid with incorrect data."""
+        form = forms.UserProfileForm(data=self.invalid_data, instance=self.user)
+        self.assertFalse(form.is_valid())

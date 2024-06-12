@@ -1,9 +1,11 @@
 """
 Views for user app.
 """
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 from django.contrib.auth.views import LogoutView
+from django.contrib.auth.models import User
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -55,3 +57,26 @@ class RegisterView(FormView):
         """Show error message if the form is invalid."""
         messages.error(self.request, 'Registration failed. Please correct the errors.')
         return super().form_invalid(form)
+
+
+class UserProfile(LoginRequiredMixin, UpdateView):
+    """View for user profile update."""
+    model = User
+    form_class = forms.UserProfileForm
+    template_name = 'registration/profile_update.html'
+    success_url = reverse_lazy('index')
+
+    def get_object(self):
+        """Return the current logged-in user."""
+        return self.request.user
+
+    def form_valid(self, form):
+        """Handle valid form submission."""
+        messages.success(self.request, 'Profile updated successfully.')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """Handle invalid for submission."""
+        messages.error(self.request, 'Profile update failed.')
+        return super().form_invalid(form)
+

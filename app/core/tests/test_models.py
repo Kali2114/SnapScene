@@ -30,9 +30,7 @@ class ModelTest(TestCase):
             content_type='image/jpeg'
         )
         user = create_user()
-        profile = models.UserProfile.objects.create(
-            user=user,
-            photo=photo,
-        )
+        profile = models.UserProfile.objects.get(user=user)
+
         self.assertEqual(profile.user, user)
 

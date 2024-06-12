@@ -12,7 +12,7 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
-    # path('profile/', views.UserProfile.as_view(), name='profile'),
+    path('profile/', views.UserProfile.as_view(), name='profile'),
     path('password_change/', auth_views.PasswordChangeView.as_view(
         template_name='registration/password_change.html',
         success_url=reverse_lazy('password_change_done')),
