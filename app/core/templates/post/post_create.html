@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container mx-auto mt-10 max-w-sm">
     <h2 class="text-2xl font-bold mb-6 text-center">Create Post</h2>
-    <form method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form id="postForm" method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         {% csrf_token %}
         {{ form.non_field_errors }}
         <div class="mb-4">
@@ -27,7 +27,7 @@
             </label>
         </div>
         <div class="flex items-center justify-center space-x-4 mt-8">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="submitPostForm(event)">
                 Create Post
             </button>
             <button type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onclick="location.href='{% url 'index' %}'">
@@ -37,15 +37,58 @@
     </form>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirm Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalPreview" src="#" alt="Image preview" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="acceptImage()">Yes, use this image</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    let imageAccepted = false;
+
     function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('modalPreview');
+            output.src = reader.result;
+            $('#confirmationModal').modal('show');
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function acceptImage() {
+        imageAccepted = true;
         var reader = new FileReader();
         reader.onload = function() {
             var output = document.getElementById('preview');
             output.src = reader.result;
             output.style.display = 'block';
         }
-        reader.readAsDataURL(event.target.files[0]);
+        reader.readAsDataURL(document.getElementById('id_image').files[0]);
+        $('#confirmationModal').modal('hide');
+    }
+
+    function submitPostForm(event) {
+        if (!imageAccepted) {
+            alert('Please confirm the image first.');
+            return;
+        }
+        document.getElementById('postForm').submit();
     }
 </script>
 {% endblock %}

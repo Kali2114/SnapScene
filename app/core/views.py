@@ -1,12 +1,14 @@
 """
 Views for core app.
 """
-from django.views.generic import TemplateView
+from django.views.generic import ListView
 
 from core.models import Post
 
 
-class IndexView(TemplateView):
-    """View for index site."""
+class IndexView(ListView):
+    """View for index site displaying all posts."""
+    model = Post
     template_name = 'index.html'
-    queryset = Post.objects.all()
+    context_object_name = 'posts'
+    queryset = Post.objects.all().order_by('-created')

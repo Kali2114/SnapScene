@@ -1,4 +1,18 @@
 {% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
 {% block content %}
-<h1>Welcome to the Index Page</h1>
+<div class="container mx-auto mt-10">
+    <h2 class="text-2xl font-bold mb-6 text-center">Board</h2>
+    <div class="flex flex-col items-center space-y-6">
+        {% for post in posts %}
+            <div class="bg-white shadow-md rounded p-4 w-full sm:w-2/3 lg:w-1/2">
+                <h3 class="text-lg font-semibold mb-2">{{ post.title }}</h3>
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-auto object-cover mb-4 rounded">
+                <p class="text-gray-700 mb-2">{{ post.caption }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

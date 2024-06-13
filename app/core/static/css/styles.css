@@ -75,10 +75,60 @@ button {
     display: none;
 }
 
-#preview {
-    height: 4rem;
-    width: 4rem;
+.avatar-preview {
+    height: 5rem;
+    width: 5rem;
     border-radius: 50%;
     object-fit: cover;
     margin-left: 1rem;
 }
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: none;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    width: 50%;
+    max-width: 500px;
+}
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header .close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    text-align: center;
+}
+
+.modal-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.375rem;
+}
+
+#preview {
+    height: 300px;
+    width: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-left: 1rem;
