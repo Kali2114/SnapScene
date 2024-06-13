@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Post{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-10 max-w-sm">
+    <h2 class="text-2xl font-bold mb-6 text-center">Create Post</h2>
+    <form method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="mb-4">
+            <label for="id_title" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
+            {{ form.title }}
+        </div>
+        <div class="mb-4">
+            <label for="id_caption" class="block text-gray-700 text-sm font-bold mb-2">Caption:</label>
+            {{ form.caption }}
+        </div>
+        <div class="mb-4 flex items-center">
+            <label for="id_image" class="block text-gray-700 text-sm font-bold mb-2">Image:</label>
+            <img id="preview" class="ml-4" src="#" alt="Image preview" style="display: none;">
+        </div>
+        <div class="mb-4">
+            <label class="custom-file-upload">
+                Choose File
+                <input type="file" id="id_image" name="image" onchange="previewImage(event)">
+            </label>
+        </div>
+        <div class="flex items-center justify-center space-x-4 mt-8">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Create Post
+            </button>
+            <button type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onclick="location.href='{% url 'index' %}'">
+                Back
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+{% endblock %}

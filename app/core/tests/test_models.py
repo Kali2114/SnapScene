@@ -34,7 +34,7 @@ class ModelTest(TestCase):
 
         self.assertEqual(profile.user, user)
 
-    def create_post(self):
+    def test_create_post(self):
         """Test create post successful."""
         image = SimpleUploadedFile(
             name='test_avatar.jpg',

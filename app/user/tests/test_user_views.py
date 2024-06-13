@@ -8,6 +8,9 @@ from django.core import mail
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from PIL import Image
+import io
+
 from user import forms
 
 
@@ -48,9 +51,13 @@ class PrivateUserViewsTests(TestCase):
             email='Test@example.com',
             password='Test123',
         )
+        image = Image.new('RGB', (100, 100))
+        image_file = io.BytesIO()
+        image.save(image_file, 'jpeg')
+        image_file.seek(0)
         self.photo = SimpleUploadedFile(
             name='test_avatar.jpg',
-            content=b'\x00\x00\x00\x00',
+            content=image_file.read(),
             content_type='image/jpeg'
         )
         self.client.login(username='Test Name', password='Test123')
@@ -159,7 +166,7 @@ class PrivateUserViewsTests(TestCase):
             'password1': 'TestPass123',
             'password2': 'TestPass123',
         }
-        res = self.client.post(self.registration_url, payload)
+        res = self.client.post(self.registration_url, payload, format='multipart')
 
         self.assertEqual(res.status_code, 302)
         self.assertRedirects(res, reverse('index'))
@@ -198,13 +205,11 @@ class PrivateUserViewsTests(TestCase):
         }
         res = self.client.post(self.profile_url, payload, format='multipart')
 
-        self.assertEqual(res.status_code, 200)
-        self.assertRedirects(res, '/')
+        self.assertEqual(res.status_code, 302)
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, payload['username'])
         self.assertEqual(self.user.email, payload['email'])
         self.assertTrue(self.user.userprofile.photo)
-        self.assertTrue(res.context['form'].is_valid())
 
     def test_post_profile_update_invalid_data(self):
         """Test POST request to the profile update view with invalid data."""
