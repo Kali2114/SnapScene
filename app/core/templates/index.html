@@ -8,6 +8,14 @@
     <div class="flex flex-col items-center space-y-6">
         {% for post in posts %}
             <div class="bg-white shadow-md rounded p-4 w-full sm:w-2/3 lg:w-1/2">
+                <div class="flex items-center mb-4">
+                    {% if post.user.userprofile.photo %}
+                        <img src="{{ post.user.userprofile.photo.url }}" alt="{{ post.user.username }}" class="w-10 h-10 rounded-full mr-4">
+                    {% else %}
+                        <img src="{{ MEDIA_URL }}avatars/default-avatar.png" alt="{{ post.user.username }}" class="w-10 h-10 rounded-full mr-4">
+                    {% endif %}
+                    <span class="font-semibold">{{ post.user.username }}</span>
+                </div>
                 <h3 class="text-lg font-semibold mb-2">{{ post.title }}</h3>
                 <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-auto object-cover mb-4 rounded">
                 <p class="text-gray-700 mb-2">{{ post.caption }}</p>

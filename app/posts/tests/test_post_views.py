@@ -15,6 +15,7 @@ import io
 CREATE_POST_URL = reverse('post_create')
 UPDATE_POST_URL = lambda pk: reverse('post_update', args=[pk])
 DELETE_POST_URL = lambda pk: reverse('post_delete', args=[pk])
+DETAIL_POST_URL = lambda pk: reverse('post_detail', args=[pk])
 
 
 class PostViewsTests(TestCase):
@@ -123,4 +124,18 @@ class PostViewsTests(TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(post.user, self.user)
+
+    def test_detail_post_view(self):
+        """Test detail view of a post."""
+        post = Post.objects.create(
+            user=self.user,
+            title='testtitle',
+            caption='testcatption',
+            image=self.photo
+        )
+        url = DETAIL_POST_URL(post.id)
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTemplateUsed(res, 'post_detail.html')
 
