@@ -6,6 +6,8 @@ from django.utils.text import slugify
 
 from django.contrib.auth.models import User
 
+from django.urls import reverse
+
 
 class UserProfile(models.Model):
     """Model for user profile."""
@@ -30,5 +32,23 @@ class Post(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        """Get and return absolute URL for post."""
+        return reverse('post_detail', args=[str(self.pk)])
+
     def __str__(self):
         return self.title
+
+    # def total_likes(self):
+    #     """Get and return a count of all likes for post."""
+    #     return self.likes.count
+
+
+class Like(models.Model):
+    """Model for likes system."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')

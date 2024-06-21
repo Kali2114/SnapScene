@@ -13,6 +13,7 @@ import io
 
 
 CREATE_POST_URL = reverse('post_create')
+USER_POST_LIST_URL = reverse('user_post_list')
 UPDATE_POST_URL = lambda pk: reverse('post_update', args=[pk])
 DELETE_POST_URL = lambda pk: reverse('post_delete', args=[pk])
 DETAIL_POST_URL = lambda pk: reverse('post_detail', args=[pk])
@@ -137,5 +138,34 @@ class PostViewsTests(TestCase):
         res = self.client.get(url)
 
         self.assertEqual(res.status_code, 200)
-        self.assertTemplateUsed(res, 'post_detail.html')
+        self.assertTemplateUsed(res, 'post/post_details.html')
 
+    def test_user_post_list_view(self):
+        """Test that user post list show post limited to user."""
+        user2 = User.objects.create_user(
+            username='testuser1',
+            email='test@example.com',
+            password='pass123',
+        )
+        Post.objects.create(
+            user=self.user,
+            title='testtitle',
+            caption='testcatption',
+            image=self.photo
+        )
+        Post.objects.create(
+            user=self.user,
+            title='testtitle',
+            caption='testcatption',
+            image=self.photo
+        )
+        Post.objects.create(
+            user=user2,
+            title='testtitle',
+            caption='testcatption',
+            image=self.photo
+        )
+        url = USER_POST_LIST_URL
+        res = self.client.get(url)
+
+        self.assertEqual(len(res.context['posts']), 2)

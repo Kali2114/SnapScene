@@ -53,3 +53,41 @@ class ModelTest(TestCase):
         self.assertEqual(post.slug, 'test-title')
         self.assertTrue(post.created)
 
+    def test_get_absolute_post_url(self):
+        """Test get the get_absolute_url method."""
+        image = SimpleUploadedFile(
+            name='test_avatar.jpg',
+            content=b'\x00\x00\x00\x00',
+            content_type='image/jpeg'
+        )
+        user = create_user()
+        post = models.Post.objects.create(
+            user=user,
+            image=image,
+            caption='Test Caption',
+            title='Test title',
+        )
+        expected_url = reverse('post_detail', args=[str(post.pk)])
+        self.assertEqual(post.get_absolute_url(), expected_url)
+
+    def test_create_like(self):
+        """Test get a like successful."""
+        image = SimpleUploadedFile(
+            name='test_avatar.jpg',
+            content=b'\x00\x00\x00\x00',
+            content_type='image/jpeg'
+        )
+        user = create_user()
+        post = models.Post.objects.create(
+            user=user,
+            image=image,
+            caption='Test Caption',
+            title='Test title',
+        )
+        models.Like.objects.create(
+            user=user,
+            post=post,
+        )
+
+        exists = models.Like.objects.filter(post=post).exists()
+        self.assertTrue(exists)

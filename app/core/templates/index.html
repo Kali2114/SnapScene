@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
@@ -19,8 +20,121 @@
                 <h3 class="text-lg font-semibold mb-2">{{ post.title }}</h3>
                 <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-auto object-cover mb-4 rounded">
                 <p class="text-gray-700 mb-2">{{ post.caption }}</p>
+                <div class="icon-container mt-4 flex space-x-4">
+                    <button class="like-button cursor-pointer focus:outline-none" data-post-id="{{ post.id }}" data-liked="{{ post.liked }}">
+                        <img src="{% static 'images/like.png' %}" alt="Like" class="w-6 h-6">
+                        <span class="ml-1 likes-count" id="likes-count-{{ post.id }}">{{ post.likes_count }}</span>
+                    </button>
+                    <a href="{% url 'post_detail' post.id %}" class="cursor-pointer">
+                        <img src="{% static 'images/comment.png' %}" alt="Comment" class="w-6 h-6">
+                    </a>
+                    <button onclick="copyToClipboard('{{ post.full_url }}')" class="bg-transparent border-none cursor-pointer">
+                        <img src="{% static 'images/share.png' %}" alt="Share" class="w-6 h-6">
+                    </button>
+                    {% if user.is_authenticated and user == post.user %}
+                        <div class="flex ml-auto">
+                            <a href="{% url 'post_update' post.id %}" class="text-blue-500 mr-2">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{% url 'post_delete' post.id %}" class="text-red-500" onclick="return confirm('Are you sure you want to delete this post?');">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch initial likes count for all posts on page load
+        fetchInitialLikes();
+
+        // Event listener for like button clicks
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const postId = button.dataset.postId;
+                const liked = button.dataset.liked === 'true';
+                toggleLike(postId, liked);
+            });
+        });
+    });
+
+    // AJAX function to fetch initial likes count
+    function fetchInitialLikes() {
+        document.querySelectorAll('.like-button').forEach(button => {
+            const postId = button.dataset.postId;
+            fetchLikesCount(postId);
+        });
+    }
+
+    // AJAX function to fetch likes count for a specific post
+    function fetchLikesCount(postId) {
+        const url = `/posts/toggle-like/${postId}/`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                updateLikesCount(postId, data.total_likes);
+            })
+            .catch(error => console.error('Error fetching likes count:', error));
+    }
+
+    // AJAX function to toggle like
+    function toggleLike(postId, liked) {
+        const url = `/posts/toggle-like/${postId}/`;
+        const method = liked ? 'DELETE' : 'POST';
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update UI based on response
+            updateLikesCount(postId, data.total_likes);
+            const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
+            if (likeButton) {
+                likeButton.dataset.liked = data.liked;
+            }
+        })
+        .catch(error => console.error('Error toggling like:', error));
+    }
+
+    // Function to update likes count in UI
+    function updateLikesCount(postId, likesCount) {
+        const likesCountSpan = document.querySelector(`#likes-count-${postId}`);
+        if (likesCountSpan) {
+            likesCountSpan.innerText = likesCount;
+        }
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Function to copy URL to clipboard
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Link copied to clipboard');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
 {% endblock %}
