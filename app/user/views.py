@@ -79,4 +79,3 @@ class UserProfile(LoginRequiredMixin, UpdateView):
         """Handle invalid for submission."""
         messages.error(self.request, 'Profile update failed.')
         return super().form_invalid(form)
-

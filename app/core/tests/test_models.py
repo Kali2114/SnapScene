@@ -91,3 +91,25 @@ class ModelTest(TestCase):
 
         exists = models.Like.objects.filter(post=post).exists()
         self.assertTrue(exists)
+
+    def test_create_comment(self):
+        """Test create comment successful."""
+        user = create_user()
+        image = SimpleUploadedFile(
+            name='test_avatar.jpg',
+            content=b'\x00\x00\x00\x00',
+            content_type='image/jpeg'
+        )
+        post = models.Post.objects.create(
+            user=user,
+            image=image,
+            caption='Test Caption',
+            title='Test title',
+        )
+        comment = models.Comment.objects.create(
+            user=user,
+            post=post,
+            content='Sample content'
+        )
+
+        self.assertEqual(str(comment), f"Comment by {user.username} on {post.title}")

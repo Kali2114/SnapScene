@@ -95,3 +95,5 @@ class ToggleLikeView(View):
         post = get_object_or_404(Post, pk=kwargs.get('pk'))
         liked = self.handle_like(request, post)
         return JsonResponse({'liked': liked, 'total_likes': post.likes.count()})
+
+

@@ -3,7 +3,7 @@ Forms for post app.
 """
 from django import forms
 
-from core.models import Post
+from core.models import Post, Comment
 
 
 class PostForm(forms.ModelForm):
@@ -12,3 +12,11 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'caption', 'image']
+
+
+class CommentForm(forms.ModelForm):
+    """Form for creating comments."""
+
+    class Meta:
+        model = Comment
+        fields = ['content']

@@ -15,7 +15,7 @@ def create_user(username='Testname', email='test@example.com', password='testpas
     return User.objects.create_user(
         username=username,
         email=email,
-        password=password
+        password=password,
     )
 
 def get_like_url(post_pk):
