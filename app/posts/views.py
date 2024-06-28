@@ -73,7 +73,10 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.get_object()
+        user = self.request.user
         context['comments'] = Comment.objects.filter(post=post).order_by('-created')
+        context['likes_count'] = post.likes.count()
+        context['liked'] = post.likes.filter(user=user).exists() if user.is_authenticated else False
         return context
 
 
@@ -102,6 +105,10 @@ class ToggleLikeView(View):
         liked = self.handle_like(request, post)
         return JsonResponse({'liked': liked, 'total_likes': post.likes.count()})
 
+    def get(self, request, *args, **kwargs):
+        """Handle GET request to get the total number of likes for a post."""
+        post = get_object_or_404(Post, pk=kwargs.get('pk'))
+        return JsonResponse({'total_likes': post.likes.count})
 
 class CommentCreateView(edit.CreateView):
     """View for create comments."""

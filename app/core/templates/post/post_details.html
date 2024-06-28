@@ -28,9 +28,9 @@
         <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-auto object-cover mb-4 rounded">
         <p class="text-gray-700 mb-2">{{ post.caption }}</p>
         <div class="icon-container mt-4 flex space-x-4">
-            <button class="like-button cursor-pointer focus:outline-none" data-post-id="{{ post.id }}" data-liked="{{ post.liked }}">
+            <button class="like-button cursor-pointer focus:outline-none" data-post-id="{{ post.id }}" data-liked="{{ liked }}">
                 <img src="{% static 'images/like.png' %}" alt="Like" class="w-6 h-6">
-                <span class="ml-1 likes-count" id="likes-count-{{ post.id }}">{{ post.likes_count }}</span>
+                <span class="ml-1 likes-count" id="likes-count-{{ post.id }}">{{ likes_count }}</span>
             </button>
             <a href="{% url 'post_detail' post.id %}#comments" class="cursor-pointer">
                 <img src="{% static 'images/comment.png' %}" alt="Comment" class="w-6 h-6">
@@ -53,13 +53,13 @@
                         <img src="{{ MEDIA_URL }}avatars/default-avatar.png" alt="{{ comment.user.username }}" class="w-8 h-8 rounded-full mr-2">
                     {% endif %}
                     <span class="font-semibold">{{ comment.user.username }}</span>
-                    <span class="text-gray-500 ml-2">{{ comment.created_at }}</span>
+                    <span class="text-gray-500 ml-2">{{ comment.created }}</span>
                     {% if user.is_authenticated and user == comment.user %}
                         <div class="ml-auto">
                             <a href="{% url 'comment_update' post.pk comment.id %}" class="text-blue-500 mr-2">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                            <a href="{% url 'comment_delete' post.pk comment.id %}" class="text-red-500" onclick="return confirm('Are you sure you want to delete this comment?');">
+                            <a href="{% url 'comment_delete' post.pk comment.id %}" class="text-red-500">
                                 <i class="fas fa-trash-alt"></i> Delete
                             </a>
                         </div>
@@ -92,9 +92,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fetch initial likes count for the post on page load
-        fetchInitialLikes();
-
         // Event listener for like button click
         const likeButton = document.querySelector('.like-button');
         if (likeButton) {
@@ -106,27 +103,6 @@
         }
     });
 
-    // AJAX function to fetch initial likes count
-    function fetchInitialLikes() {
-        const likeButton = document.querySelector('.like-button');
-        if (likeButton) {
-            const postId = likeButton.dataset.postId;
-            fetchLikesCount(postId);
-        }
-    }
-
-    // AJAX function to fetch likes count for a specific post
-    function fetchLikesCount(postId) {
-        const url = `/posts/toggle-like/${postId}/`;
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                updateLikesCount(postId, data.total_likes);
-            })
-            .catch(error => console.error('Error fetching likes count:', error));
-    }
-
-    // AJAX function to toggle like
     function toggleLike(postId, liked) {
         const url = `/posts/toggle-like/${postId}/`;
         const method = liked ? 'DELETE' : 'POST';
@@ -139,7 +115,6 @@
         })
         .then(response => response.json())
         .then(data => {
-            // Update UI based on response
             updateLikesCount(postId, data.total_likes);
             const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
             if (likeButton) {
@@ -149,7 +124,6 @@
         .catch(error => console.error('Error toggling like:', error));
     }
 
-    // Function to update likes count in UI
     function updateLikesCount(postId, likesCount) {
         const likesCountSpan = document.querySelector(`#likes-count-${postId}`);
         if (likesCountSpan) {
@@ -157,7 +131,6 @@
         }
     }
 
-    // Function to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -171,6 +144,14 @@
             }
         }
         return cookieValue;
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Link copied to clipboard');
+        }, function(err) {
+            console.error('Could not copy text: ', err);
+        });
     }
 </script>
 {% endblock %}

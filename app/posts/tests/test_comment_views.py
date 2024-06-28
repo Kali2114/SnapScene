@@ -48,7 +48,7 @@ class CommentViewTests(TestCase):
             'post': self.post.id,
             'content': 'Test content.',
         }
-        url = reverse('create_comment', args=[self.post.pk])
+        url = reverse('comment_create', args=[self.post.pk])
         res = self.client.post(url, data=payload)
 
         self.assertEqual(res.status_code, 302)
@@ -63,7 +63,7 @@ class CommentViewTests(TestCase):
             content='Test content.',
         )
         payload = {'content': 'Update content.'}
-        url = reverse('update_comment', args=[comment.post.pk, comment.pk])
+        url = reverse('comment_update', args=[comment.post.pk, comment.pk])
         res = self.client.post(url, data=payload)
 
         self.assertEqual(res.status_code, 302)
@@ -82,7 +82,7 @@ class CommentViewTests(TestCase):
             'user': user2,
             'content': '',
         }
-        url = reverse('update_comment', args=[comment.post.pk, comment.pk])
+        url = reverse('comment_update', args=[comment.post.pk, comment.pk])
         res = self.client.put(url, data=payload)
 
         self.assertEqual(res.status_code, 200)
@@ -97,7 +97,7 @@ class CommentViewTests(TestCase):
             post=self.post,
             content='Test content.',
         )
-        url = reverse('delete_comment', args=[comment.post.pk, comment.pk])
+        url = reverse('comment_delete', args=[comment.post.pk, comment.pk])
         res = self.client.delete(url)
 
         self.assertEqual(res.status_code, 302)
