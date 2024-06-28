@@ -20,11 +20,7 @@ def create_user(username='Testname', email='test@example,com', password='Test123
 
 def get_post_url(post_pk):
     """Get and return post url."""
-    return reverse('comment', args=[post_pk])
-
-def get_comment_url(comment_pk):
-    """Get and return comment url."""
-    return reverse('comment_detail', args=[comment_pk])
+    return reverse('detail', args=[post_pk])
 
 
 class CommentViewTests(TestCase):
@@ -52,10 +48,10 @@ class CommentViewTests(TestCase):
             'post': self.post.id,
             'content': 'Test content.',
         }
-        url = get_post_url(self.post.pk)
+        url = reverse('create_comment', args=[self.post.pk])
         res = self.client.post(url, data=payload)
 
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 302)
         exists = models.Comment.objects.filter(post=self.post).exists()
         self.assertTrue(exists)
 
@@ -67,10 +63,10 @@ class CommentViewTests(TestCase):
             content='Test content.',
         )
         payload = {'content': 'Update content.'}
-        url = get_comment_url(comment.pk)
-        res = self.client.patch(url, data=payload)
+        url = reverse('update_comment', args=[comment.post.pk, comment.pk])
+        res = self.client.post(url, data=payload)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 302)
         comment.refresh_from_db()
         self.assertEqual(comment.content, payload['content'])
 
@@ -86,10 +82,10 @@ class CommentViewTests(TestCase):
             'user': user2,
             'content': '',
         }
-        url = get_comment_url(comment.pk)
-        res = self.client.patch(url, data=payload)
+        url = reverse('update_comment', args=[comment.post.pk, comment.pk])
+        res = self.client.put(url, data=payload)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 200)
         comment.refresh_from_db()
         self.assertEqual(comment.content, 'Test content.')
         self.assertEqual(comment.user, self.user)
@@ -101,9 +97,9 @@ class CommentViewTests(TestCase):
             post=self.post,
             content='Test content.',
         )
-        url = get_comment_url(comment.pk)
+        url = reverse('delete_comment', args=[comment.post.pk, comment.pk])
         res = self.client.delete(url)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 302)
         exists = models.Comment.objects.filter(post=self.post).exists()
         self.assertFalse(exists)

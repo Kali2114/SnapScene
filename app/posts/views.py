@@ -8,10 +8,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import edit, DetailView, ListView
 
 from django.views import View
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
-from posts.forms import PostForm
-from core.models import Post, Like
+from posts.forms import PostForm, CommentForm
+from core.models import Post, Like, Comment
 
 
 class UserPostView(ListView):
@@ -37,7 +37,7 @@ class PostCreateView(edit.CreateView):
 
 
 class PostDeleteView(edit.DeleteView):
-    """View fo delete posts."""
+    """View for delete posts."""
     model = Post
     template_name = 'post/post_confirm_delete.html'
     success_url = reverse_lazy('index')
@@ -70,6 +70,12 @@ class PostDetailView(DetailView):
     template_name = 'post/post_details.html'
     context_object_name = 'post'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = self.get_object()
+        context['comments'] = Comment.objects.filter(post=post).order_by('-created')
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class ToggleLikeView(View):
@@ -97,3 +103,64 @@ class ToggleLikeView(View):
         return JsonResponse({'liked': liked, 'total_likes': post.likes.count()})
 
 
+class CommentCreateView(edit.CreateView):
+    """View for create comments."""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'comment/comment_create.html'
+
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'pk': self.kwargs['post_pk']})
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.post_id = self.kwargs['post_pk']
+        return super().form_valid(form)
+
+
+class CommentUpdateView(edit.UpdateView):
+    """View for update comments."""
+    model = Comment
+    form_class = CommentForm
+    template_name = 'comment/comment_create.html'
+
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'pk': self.kwargs['post_pk']})
+
+    def get_object(self, queryset=None):
+        comment_id = self.kwargs.get('comment_pk')
+        return Comment.objects.get(pk=comment_id)
+
+    def get_queryset(self):
+        return Comment.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['editing'] = True
+        return context
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class CommentDeleteView(edit.DeleteView):
+    """View for delete posts."""
+    model = Comment
+    template_name = 'comment/comment_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('post_detail', kwargs={'pk': self.kwargs['post_pk']})
+
+    def get_object(self, queryset=None):
+        comment_id = self.kwargs.get('comment_pk')
+        return Comment.objects.get(pk=comment_id)
+
+    def get_queryset(self):
+        return Comment.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        post = get_object_or_404(Post, pk=self.kwargs['post_pk'])
+        context['post'] = post
+        return context
