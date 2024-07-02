@@ -8,3 +8,4 @@ django-filter==24.2
 flake8==7.0.0
 black==24.4.2
 pillow==10.3.0
+uwsgi==2.0.26
