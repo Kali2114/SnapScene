@@ -2,22 +2,17 @@
 
 set -e
 
-mkdir -p /app/static
 mkdir -p /vol/web/static
 mkdir -p /vol/web/media
 mkdir -p /vol/static
+mkdir -p /app/static
+mkdir -p /app/vol
 
-# Ustawienie uprawnień jako root
-chown -R django-user:django-user /app/static /vol/web/static /vol/web/media /vol/static
-chmod -R 755 /vol/web/static /vol/web/media /vol/static
+chown -R django-user:django-user /vol/web/static /vol/web/media /app/static /vol/static /app/vol /app/media
+chmod -R 755 /vol/web/static /vol/web/media /app/static /vol/static /app/vol /app/media
 
 python manage.py wait_for_db
 python manage.py collectstatic --noinput
-
-chown -R django-user:django-user /vol/web/static /vol/web/media
-chmod -R 755 /vol/web/static /vol/web/media
-
-cp -r /app/static/* /vol/web/static/
 
 python manage.py migrate
 
