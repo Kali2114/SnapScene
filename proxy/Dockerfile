@@ -11,17 +11,17 @@ ENV APP_PORT=9000
 
 USER root
 
-RUN mkdir -p /vol/web/static && \
-    mkdir -p /vol/web/media && \
-    chmod 755 /vol/web/static && \
-    chmod 755 /vol/web/media && \
+RUN mkdir -p /app/static && \
+    mkdir -p /app/media && \
+    chmod 755 /app/static && \
+    chmod 755 /app/media && \
     touch /etc/nginx/conf.d/default.conf && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf && \
     chmod 644 /etc/nginx/conf.d/default.conf && \
     chmod +x /run.sh
 
-VOLUME /vol/web/static
-VOLUME /vol/web/media
+VOLUME /app/static
+VOLUME /app/media
 
 USER nginx
 
