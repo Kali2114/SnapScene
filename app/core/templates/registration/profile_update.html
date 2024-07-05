@@ -16,7 +16,7 @@
         </div>
         <div class="mb-4 flex items-center">
             <label for="id_photo" class="block text-gray-700 text-sm font-bold mb-2">Avatar:</label>
-            <img id="preview" class="avatar-preview ml-4" src="{% if user.userprofile.photo %}{{ user.userprofile.photo.url }}{% endif %}" alt="Avatar preview">
+            <img id="preview" class="avatar-preview ml-4" src="{% if user.userprofile.photo %}{{ user.userprofile.photo.url }}{% else %}/media/avatars/default-avatar.png{% endif %}" alt="Avatar preview">
         </div>
         <div class="mb-4">
             <label class="custom-file-upload">
