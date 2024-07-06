@@ -41,8 +41,23 @@ DB_USER=your_db_user
 DB_PASS=your_db_password
 ````
 3. Build and start the Docker containers:
+
 ````
-docker-compose up --build
+You can build and start the Docker containers in two modes: development and deployment.
+
+Development Mode:
+In this mode, you can quickly build and start the containers without Nginx:
+
+`docker-compose up --build
+
+Deployment Mode:
+For a production-like environment with Nginx and uWSGI, use the deployment configuration:
+
+`docker-compose -f docker-compose-deploy.yml build --no-cache
+`docker-compose -f docker-compose-deploy.yml up -d
+
+In Deployment Mode, Nginx is used as a reverse proxy for improved performance and security.
+
 ````
 
 ## Running the Application

@@ -27,7 +27,6 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-
   proxy:
     build:
       context: ./proxy
@@ -39,7 +38,6 @@ services:
     volumes:
       - static-data:/app/static
       - media-data:/app/media
-
 volumes:
   postgres-data:
   static-data:
