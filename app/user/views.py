@@ -32,6 +32,7 @@ class LoginView(FormView):
             form.add_error(None, 'Invalid credentials.')
             return self.form_invalid(form)
 
+
 class CustomLogoutView(LogoutView):
     """Custom logout view to add a logout success message."""
     next_page = reverse_lazy('index')

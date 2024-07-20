@@ -69,6 +69,7 @@ The application consists of two main services defined in the docker-compose.yml 
 ````
 app: The Django application service
 db: The PostgreSQL database service
+proxy: The proxy service
 ````
 ## Docker Compose Services
 

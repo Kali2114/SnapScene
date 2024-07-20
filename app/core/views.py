@@ -1,7 +1,7 @@
 """
 Views for core app.
 """
-from django.db.models import Count, Case, When
+from django.db.models import Count, Case, When, IntegerField
 from django.views.generic import ListView
 
 from core.models import Post
@@ -16,15 +16,14 @@ class IndexView(ListView):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Post.objects.all().select_related('user').prefetch_related(
+            'post', 'comment_set__user'
+        ).annotate(likes_count=Count('likes')).order_by('-created')
         if user.is_authenticated:
-            return Post.objects.annotate(
-                likes_count=Count('likes'),
-                liked=Count(Case(When(likes__user=user, then=1)))
-            ).order_by('-created')
-        else:
-            return Post.objects.annotate(
-                likes_count=Count('likes')
-            ).order_by('-created')
+            queryset = queryset.annotate(
+                liked=Count(Case(When(likes__user=user, then=1),
+                                 defaul=0, output_field=IntegerField()))
+            )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

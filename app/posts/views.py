@@ -22,7 +22,9 @@ class UserPostView(ListView):
 
     def get_queryset(self):
         """Queryset displaying only logged user posts."""
-        return Post.objects.filter(user=self.request.user).order_by('-created')
+        return (Post.objects.filter(user=self.request.user)
+                .select_related('user').order_by('-created'))
+
 
 class PostCreateView(edit.CreateView):
     """View for create posts."""
@@ -70,11 +72,15 @@ class PostDetailView(DetailView):
     template_name = 'post/post_details.html'
     context_object_name = 'post'
 
+    def get_queryset(self):
+        return Post.objects.select_related('user').prefetch_related('likes', 'comment_set__user')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         post = self.get_object()
         user = self.request.user
-        context['comments'] = Comment.objects.filter(post=post).order_by('-created')
+        context['comments'] = (Comment.objects.filter(post=post).select_related('user')
+                               .order_by('-created'))
         context['likes_count'] = post.likes.count()
         context['liked'] = post.likes.filter(user=user).exists() if user.is_authenticated else False
         return context
