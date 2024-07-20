@@ -27,10 +27,13 @@ RUN python -m venv /py && \
         --no-create-home \
         django-user && \
     mkdir -p /app/static && \
+    mkdir -p /app/static/images && \
     mkdir -p /app/media && \
     chown -R django-user:django-user /app/static && \
+    chown -R django-user:django-user /app/static/images && \
     chown -R django-user:django-user /app/media && \
     chmod -R 755 /app/static && \
+    chmod -R 755 /app/static/images && \
     chmod -R 755 /app/media && \
     chmod +x /scripts/run.sh
 
