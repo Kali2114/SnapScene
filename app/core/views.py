@@ -17,13 +17,15 @@ class IndexView(ListView):
     def get_queryset(self):
         user = self.request.user
         queryset = Post.objects.all().select_related('user').prefetch_related(
-            'post', 'comment_set__user'
+            'comment_set__user'
         ).annotate(likes_count=Count('likes')).order_by('-created')
         if user.is_authenticated:
             queryset = queryset.annotate(
                 liked=Count(Case(When(likes__user=user, then=1),
                                  defaul=0, output_field=IntegerField()))
             )
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

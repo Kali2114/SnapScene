@@ -29,6 +29,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
       - DEBUG=1
+
   proxy:
     build:
       context: ./proxy
