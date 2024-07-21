@@ -3,7 +3,6 @@ psycopg2==2.9.9
 django-filter==24.2
 django-debug-toolbar==4.3.0
 gunicorn==22.0.0
-django-filter==24.2
 flake8==7.0.0
 black==24.4.2
 pillow==10.3.0
